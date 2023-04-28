@@ -1,11 +1,16 @@
 import random, time, math
 import numpy as np
 import pygame
+from nn import *
+
+pygame.init()
+background = pygame.display.set_mode((400, 400))
+clock = pygame.time.Clock()
 
 def init():
     headPos = [20, 20]
     snakeBody = [[20, 20], [21, 20]]
-    foodPos = [random.randInt(0, 40), random.randInt(0, 40)]
+    foodPos = [random.randint(0, 40), random.randint(0, 40)]
     score = 0
 
     return headPos, snakeBody, foodPos, score
@@ -17,7 +22,7 @@ def play(headPos, snakeBody, foodPos, direction, score, background, clock):
             if event.type == pygame.QUIT:
                 crashed = True
 
-        background.fill("#012a49")
+        background.fill("#003262")
 
         display(background, foodPos, snakeBody)
         snakeBody, foodPos, score = update(headPos, snakeBody, foodPos, direction, score)
@@ -36,11 +41,11 @@ def update(headPos, snakeBody, foodPos, direction, score):
     else:
         headPos[1] += 1
 
-    if headPos == foodPos:
+    if headPos[0] == foodPos[0] and headPos[1] == foodPos[1]:
         score += 1
-        foodPos = [random.randInt(0, 40), random.randInt(0, 40)]
-        while foodPos not in snakeBody:
-            foodPos = [random.randInt(0, 40), random.randInt(0, 40)]
+        foodPos = [random.randint(0, 40), random.randint(0, 40)]
+        # while foodPos not in snakeBody:
+        #     foodPos = [random.randInt(0, 40), random.randInt(0, 40)]
         snakeBody.insert(0, headPos)
 
     else:
@@ -56,9 +61,9 @@ def update(headPos, snakeBody, foodPos, direction, score):
 def display(background, foodPos, snakeBody):
     for cell in snakeBody:
         cellrect = pygame.Rect(cell[0] * 10, cell[1] * 10, 10, 10)
-        pygame.draw.rect(background, '#1s41j0', cellrect)
+        pygame.draw.rect(background, '#B9D3B6', cellrect)
     foodrect = pygame.Rect(foodPos[0] * 10, foodPos[1] * 10, 10, 10)
-    pygame.draw.rect(background, '4a920a', foodrect)
+    pygame.draw.rect(background, '#FDB515', foodrect)
 
 
 
@@ -75,7 +80,7 @@ def runGame(background, clock, nnWeights):
         # getting inputs for our NN
 
         # checking if cells around are blocked
-        currDir = snakeBody[0] - snakeBody[1]
+        currDir = np.array(snakeBody[0]) - np.array(snakeBody[1])
         leftDir = [currDir[1], -currDir[0]]
         rightDir = [-currDir[1], currDir[0]]
 
@@ -83,13 +88,20 @@ def runGame(background, clock, nnWeights):
         leftBlocked = isBlocked(snakeBody, leftDir)
         rightBlocked = isBlocked(snakeBody,rightDir)
 
-        foodDir = foodPos - snakeBody[0]
+        foodDir = np.array(foodPos) - np.array(snakeBody[0])
 
         # our direction and direction to food
-        foodDirNorm = foodDir / np.linalg.norm(foodDir) 
-        snakeDirNorm = currDir / np.linalg.norm(currDir)
+        if np.linalg.norm(foodDir) != 0:
+            foodDirNorm = foodDir / np.linalg.norm(foodDir)
+        else:
+            foodDirNorm = np.array([0, 0])
+        if np.linalg.norm(currDir) != 0:
+            snakeDirNorm = currDir / np.linalg.norm(currDir)
+        else:
+            currDirNorm = np.array([0, 0])
+        # snakeDirNorm = currDir / np.linalg.norm(currDir)
 
-        move = np.argmax(np.array(nn(np.array([
+        move = np.argmax(np.array(predict(np.array([
             foodDirNorm[0], foodDirNorm[1], snakeDirNorm[0], snakeDirNorm[1], forwardBlocked, leftBlocked, rightBlocked
         ]), nnWeights)))
 
@@ -111,7 +123,7 @@ def runGame(background, clock, nnWeights):
             break
         temp = False
         for i in snakeBody:
-            if i == newHead:
+            if i[0] == newHead[0] and i[1] == newHead[1]:
                 stepScore -= 175
                 temp = True
         if temp:
@@ -142,3 +154,5 @@ def isBlocked(snakeBody, currDir):
         if i[0] == newPos[0] and i[1] == newPos[1]:
             return True
     return False
+
+

@@ -1,8 +1,8 @@
 import numpy as np
 
 inputNodes = 7
-hidden1 = 10
-hidden2 = 16
+hidden1 = 9
+hidden2 = 15
 outputNodes = 3
 
 layer1IO = (hidden1, inputNodes)
@@ -17,7 +17,7 @@ def getWeights(weights):
     layer2W = weights[l1cutoff:l2cutoff]
     layer3W = weights[l2cutoff:]
 
-    return layer1W.reshape(layer1IO), layer2W.reshape(layer2IO), layer3W.reshape(layer3IO)
+    return layer1W.reshape(layer1IO[0], layer1IO[1]), layer2W.reshape(layer2IO[0], layer2IO[1]), layer3W.reshape(layer3IO[0], layer3IO[1])
 
 def predict(data, weights):
     weightsL1, weightsL2, weightsL3 = getWeights(weights)
