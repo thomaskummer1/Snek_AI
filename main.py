@@ -17,11 +17,13 @@ bestSnakes = []
 for gen in range(numGens):
     fitScrs = batch(population)
     best = np.max(fitScrs)
+    print(best)
     bestSnakes.append(best)
 
-    parents = selectBest(population, fitScrs, crossbreedProb * popSize)
+    parents = selectBest(population, fitScrs, int(crossbreedProb * popSize))
+    print(parents)
 
-    children = crossbreed(parents, popSize, numWeights)
+    children = crossbreed(parents, popSize - parents.shape[0], numWeights)
 
     children = mutation(children, mutationProb)
 

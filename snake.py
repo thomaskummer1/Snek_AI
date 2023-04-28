@@ -20,14 +20,16 @@ def play(headPos, snakeBody, foodPos, direction, score, background, clock):
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                crashed = True
+                running = False
 
         background.fill("#003262")
 
-        display(background, foodPos, snakeBody)
+    
         snakeBody, foodPos, score = update(headPos, snakeBody, foodPos, direction, score)
+        display(background, foodPos, snakeBody)
+        pygame.display.flip()
 
-        clock.tick(100000)
+        clock.tick(5)
 
         return snakeBody, foodPos, score
 
@@ -117,6 +119,7 @@ def runGame(background, clock, nnWeights):
             newDir = rightDir
 
         newHead = snakeBody[0] + newDir
+        headPos = newHead
 
         if newHead[0] < 0 or newHead[0] > 39 or newHead[1] < 0 or newHead[1] > 39:
             stepsScore -= 175
