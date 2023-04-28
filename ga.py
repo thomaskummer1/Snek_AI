@@ -40,7 +40,8 @@ def mutation(children, prob):
     for i in range(children.shape[0]):
         for j in range(children.shape[1]):
             if random.uniform(0,1) < prob:
-                offset = np.random.normal(loc=0, scale=0.5, size=1)
+                # offset = np.random.normal(loc=0, scale=0.5, size=1)
+                offset = np.random.choice(np.arange(-1, 1, step=0.001), size = (1), replace = False)
                 children[i, j] = children[i, j] + offset
     return children
 

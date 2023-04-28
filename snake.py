@@ -91,7 +91,7 @@ def display(background, foodPos, snakeBody):
 
 
 def runGame(background, clock, nnWeights):
-    maxSteps = 3000
+    maxSteps = 2500
     stepsScore = 0
 
     headPos, snakeBody, foodPos, score = init()
@@ -159,11 +159,11 @@ def runGame(background, clock, nnWeights):
         # print(newHead)
         # print(snakeBody)
 
-        if ctSameDir > 10 and move == 'forward':
+        if ctSameDir > 10 and move != 'forward':
             stepsScore -= 1
         else:
             stepsScore += 2
-    return score * 6000 + stepsScore
+    return score * 10000 + stepsScore
 
                 
         
