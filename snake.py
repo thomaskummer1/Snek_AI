@@ -28,20 +28,41 @@ def play(headPos, snakeBody, foodPos, direction, score, background, clock):
         snakeBody, foodPos, score = update(headPos, snakeBody, foodPos, direction, score)
         display(background, foodPos, snakeBody)
         pygame.display.flip()
+        pygame.display.set_caption("Score: " + str(score))
 
-        clock.tick(5)
+        clock.tick(50000)
 
         return snakeBody, foodPos, score
 
 def update(headPos, snakeBody, foodPos, direction, score):
-    if direction == 'left':
-        headPos[0] -= 1
-    elif direction == 'right':
-        headPos[0] += 1
-    elif direction == 'up':
-        headPos[1] -= 1
-    else:
-        headPos[1] += 1
+    # # compute the current direction of the snake's head relative to the next cell in the snake's body
+    # curr_dir = np.array(snakeBody[0]) - np.array(snakeBody[1])
+
+    # # compute the left and right directions relative to the current direction of the head
+    # rot_matrix = np.array([[0, -1], [1, 0]])  # 90-degree rotation matrix
+    # left_dir = np.matmul(rot_matrix, curr_dir)
+    # right_dir = np.matmul(rot_matrix.T, curr_dir)
+
+    # # move the head left or right relative to the current direction of the snake
+    # if direction == 'left':
+    #     headPos = np.array(headPos) + left_dir
+    # elif direction == 'right':
+    #     headPos = np.array(headPos) + right_dir
+    # else:
+    #     headPos = np.array(headPos) + curr_dir
+
+    # currDir = np.array(snakeBody[0]) - np.array(snakeBody[1])
+    # leftDir = [currDir[1], -currDir[0]]
+    # rightDir = [-currDir[1], currDir[0]]
+
+    # newDir = currDir
+    # if direction == 'left':
+    #     newDir = leftDir
+    # elif direction == 'right':
+    #     newDir = rightDir
+    
+    # headPos = np.array(headPos) + np.array(newDir)
+
 
     if headPos[0] == foodPos[0] and headPos[1] == foodPos[1]:
         score += 1
@@ -100,12 +121,12 @@ def runGame(background, clock, nnWeights):
         if np.linalg.norm(currDir) != 0:
             snakeDirNorm = currDir / np.linalg.norm(currDir)
         else:
-            currDirNorm = np.array([0, 0])
+            snakeDirNorm = np.array([0, 0])
         # snakeDirNorm = currDir / np.linalg.norm(currDir)
 
-        move = np.argmax(np.array(predict(np.array([
+        move = predict(np.array([
             foodDirNorm[0], foodDirNorm[1], snakeDirNorm[0], snakeDirNorm[1], forwardBlocked, leftBlocked, rightBlocked
-        ]), nnWeights)))
+        ]), nnWeights)
 
         if move == prevDir: ctSameDir += 1
         else:
@@ -118,21 +139,25 @@ def runGame(background, clock, nnWeights):
         elif move == 'right':
             newDir = rightDir
 
-        newHead = snakeBody[0] + newDir
-        headPos = newHead
-
+        newHead = np.array(snakeBody[0]) + np.array(newDir)
+        # headPos = newHead
         if newHead[0] < 0 or newHead[0] > 39 or newHead[1] < 0 or newHead[1] > 39:
             stepsScore -= 175
             break
         temp = False
-        for i in snakeBody:
-            if i[0] == newHead[0] and i[1] == newHead[1]:
-                stepScore -= 175
+        for i in range(1, len(snakeBody)):
+            if snakeBody[i][0] == newHead[0] and snakeBody[i][1] == newHead[1]:
+                stepsScore -= 175
                 temp = True
         if temp:
             break
-
         snakeBody, foodPos, score = play(newHead, snakeBody, foodPos, move, score, background, clock)
+        # print(move)
+        # print("headpos: ")
+        # print(headPos)
+        # print("newHead: ")
+        # print(newHead)
+        # print(snakeBody)
 
         if ctSameDir > 10 and move == 'forward':
             stepsScore -= 1
@@ -148,7 +173,7 @@ def runGame(background, clock, nnWeights):
 
 
 def isBlocked(snakeBody, currDir):
-    newPos = snakeBody[0] + currDir
+    newPos = np.array(snakeBody[0]) + currDir
     
     if newPos[0] < 0 or newPos[0] > 39 or newPos[1] < 0 or newPos[1] > 39:
         return True

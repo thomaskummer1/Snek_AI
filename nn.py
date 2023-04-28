@@ -30,13 +30,8 @@ def predict(data, weights):
     return dir
 
 def pickDir(weights):
-    max = -1
-    idx = 0
-    for i in range(len(weights)):
-        if weights[i] > max:
-            max = weights[i]
-            idx = i
-
+    maxWeight = max(weights)
+    idx = list(weights).index(maxWeight)
     if idx == 0:
         return 'left'
     elif idx == 1:
