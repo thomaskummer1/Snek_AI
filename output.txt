@@ -1,0 +1,21 @@
+Generation: 0
+Best Fitness: 10045
+Running avg: 502.25
+Generation: 1
+Best Fitness: 9961
+Running avg: 1000.3
+Generation: 2
+Best Fitness: 7581
+Running avg: 1379.35
+Generation: 3
+Best Fitness: 9951
+Running avg: 1876.9
+Generation: 4
+Best Fitness: 9919
+Running avg: 2372.85
+Generation: 5
+Best Fitness: 9927
+Running avg: 2869.2
+Generation: 6
+Best Fitness: 9957
+Running avg: 3367.05

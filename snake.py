@@ -1,11 +1,21 @@
 import random, time, math
 import numpy as np
 import pygame
+import pygame_gui
 from nn import *
 
 pygame.init()
 background = pygame.display.set_mode((400, 400))
 clock = pygame.time.Clock()
+
+ui_manager = pygame_gui.UIManager((400, 400))
+
+slider = pygame_gui.elements.UIHorizontalSlider(
+    relative_rect=pygame.Rect((200, 200), (200, 50)),
+    start_value=50000,  # Set the initial tick rate
+    value_range=(1, 100000),  # Set the range of possible tick rates
+    manager=ui_manager
+)
 
 def init():
     headPos = [20, 20]
@@ -15,54 +25,36 @@ def init():
 
     return headPos, snakeBody, foodPos, score
 
-def play(headPos, snakeBody, foodPos, direction, score, background, clock):
+def play(headPos, snakeBody, foodPos, direction, score, background, clock, tr):
+    tr = 100000
     running = True
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-
+            ui_manager.process_events(event)
         background.fill("#003262")
-
     
         snakeBody, foodPos, score = update(headPos, snakeBody, foodPos, direction, score)
         display(background, foodPos, snakeBody)
+        ui_manager.draw_ui(background)
+
+        
+        # tr = int(slider.get_current_value())
+        clock.tick(tr)
+        
         pygame.display.flip()
         pygame.display.set_caption("Score: " + str(score))
 
-        clock.tick(50000)
+
+
+
+        # background.fill("#003262")
+        # pygame.display.update()
 
         return snakeBody, foodPos, score
 
 def update(headPos, snakeBody, foodPos, direction, score):
-    # # compute the current direction of the snake's head relative to the next cell in the snake's body
-    # curr_dir = np.array(snakeBody[0]) - np.array(snakeBody[1])
-
-    # # compute the left and right directions relative to the current direction of the head
-    # rot_matrix = np.array([[0, -1], [1, 0]])  # 90-degree rotation matrix
-    # left_dir = np.matmul(rot_matrix, curr_dir)
-    # right_dir = np.matmul(rot_matrix.T, curr_dir)
-
-    # # move the head left or right relative to the current direction of the snake
-    # if direction == 'left':
-    #     headPos = np.array(headPos) + left_dir
-    # elif direction == 'right':
-    #     headPos = np.array(headPos) + right_dir
-    # else:
-    #     headPos = np.array(headPos) + curr_dir
-
-    # currDir = np.array(snakeBody[0]) - np.array(snakeBody[1])
-    # leftDir = [currDir[1], -currDir[0]]
-    # rightDir = [-currDir[1], currDir[0]]
-
-    # newDir = currDir
-    # if direction == 'left':
-    #     newDir = leftDir
-    # elif direction == 'right':
-    #     newDir = rightDir
-    
-    # headPos = np.array(headPos) + np.array(newDir)
-
 
     if headPos[0] == foodPos[0] and headPos[1] == foodPos[1]:
         score += 1
@@ -90,7 +82,7 @@ def display(background, foodPos, snakeBody):
 
 
 
-def runGame(background, clock, nnWeights):
+def runGame(background, clock, nnWeights, tickRate=100000):
     maxSteps = 2500
     stepsScore = 0
 
@@ -151,7 +143,7 @@ def runGame(background, clock, nnWeights):
                 temp = True
         if temp:
             break
-        snakeBody, foodPos, score = play(newHead, snakeBody, foodPos, move, score, background, clock)
+        snakeBody, foodPos, score = play(newHead, snakeBody, foodPos, move, score, background, clock, tickRate)
         # print(move)
         # print("headpos: ")
         # print(headPos)
